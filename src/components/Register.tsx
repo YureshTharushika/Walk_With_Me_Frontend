@@ -9,17 +9,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
+
+const formSchema = z.object({
+    email: z.string().email({
+        message: "Please enter a valid email address.",
+    }),
+    password: z.string().min(6, {
+        message: "Password must be at least 6 characters.",
+    })
+});
+
 const Register: React.FC = () => {
     const navigate = useNavigate();
-
-    const formSchema = z.object({
-        email: z.string().email({
-            message: "Please enter a valid email address.",
-        }),
-        password: z.string().min(6, {
-            message: "Password must be at least 6 characters.",
-        })
-    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

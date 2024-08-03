@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Register from './components/Register';
 import Login from './components/Login';
 import Home from './components/Home';
+import ProtectedRoute from './components/ProtectedRoute';
+import CreateWalk from './components/CreateWalk';
 
 const App: React.FC = () => {
   return (
@@ -11,7 +13,12 @@ const App: React.FC = () => {
               <Routes>
                   <Route path="/register" element={<Register />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/home" element={<Home />} />
+                  <Route element={<ProtectedRoute />}>
+                      <Route path="/home" element={<Home />} />
+                  </Route>
+                  <Route element={<ProtectedRoute />}>
+                      <Route path="/create-walk" element={<CreateWalk />} />
+                  </Route>
                   <Route path="/" element={<h1>Welcome to WalkWithMe</h1>} />
               </Routes>
           </div>

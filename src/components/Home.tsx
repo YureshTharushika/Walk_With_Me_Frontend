@@ -1,19 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import useAuth from '@/hooks/useAuth';
+import api from '@/services/api';
+
+interface Walk {
+    id: number;
+    name: string;
+    date: string;
+    time: string;
+    route: string;
+}
 
 const Home: React.FC = () => {
+    const { logout } = useAuth();
     const navigate = useNavigate();
+    const [walks, setWalks] = useState<Walk[]>([]);
+    
+    useEffect(() => {
+        const fetchWalks = async () => {
+            try {
+                const response = await api.get('/api/walks');
+                // Extract walks from the $values property
+                const fetchedWalks: Walk[] = response.data.$values;
+                setWalks(fetchedWalks);
+            } catch (error) {
+                console.error('Failed to fetch walks', error);
+            }
+        };
 
-    const handleLogout = async () => {
-        try {
-            await api.post('/auth/logout');
-            navigate('/login');
-        } catch (error) {
-            console.error('Logout failed', error);
-        }
+        fetchWalks();
+    }, []);
+    
+    const handleLogout = () => {
+        logout();
     };
 
     const handleCreateWalk = () => {
@@ -34,26 +55,18 @@ const Home: React.FC = () => {
                     <Button onClick={handleCreateWalk} className="bg-black text-white shadow-md rounded-md">Create Walk</Button>
                 </section>
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Replace this with actual walk data */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Park Loop</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p>Date: 2024-08-01</p>
-                            <p>Time: 07:00 AM</p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>River Walk</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p>Date: 2024-08-02</p>
-                            <p>Time: 06:30 AM</p>
-                        </CardContent>
-                    </Card>
-                    {/* End of walk data */}
+                    {walks.map(walk => (
+                        <Card key={walk.id}>
+                            <CardHeader>
+                                <CardTitle>{walk.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p>Date: {new Date(walk.date).toLocaleDateString()}</p>
+                                <p>Time: {walk.time}</p>
+                                <p>Route: {walk.route}</p>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </section>
             </main>
         </div>
